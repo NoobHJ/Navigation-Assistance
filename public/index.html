@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bae & Ultimate 운항보조프로그램</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="sidebar">
+      <div class="logo"></div>
+      <div class="menu">
+        <a href="./pages/localization.html">
+          <img src="./assets/sidebar/local.svg" alt="icon1" />Localization
+        </a>
+        <a href="./perception.html">
+          <img src="./assets/sidebar/perce.svg" alt="icon2" />Perception
+        </a>
+        <a href="./decision.html">
+          <img src="./assets/sidebar/decis.svg" alt="icon3" />Decision
+        </a>
+        <a href="./control.html">
+          <img src="./assets/sidebar/contr.svg" alt="icon4" />Control
+        </a>
+      </div>
+      <div class="ulsanlogo"></div>
+    </div>
+
+    <div class="container">
+      <div class="camera-feed">
+        <canvas id="ros-canvas"></canvas>
+        <div class="compass">
+          <div class="compass2"></div>
+          <div class="compass1"></div>
+          <h1 class="real">0°</h1>
+          <h1 class="disire">100°</h1>
+        </div>
+      </div>
+    </div>
+
+    <div class="gauge-container">
+      <object
+        type="image/svg+xml"
+        data="public/assets/Gauge.svg"
+        width="362"
+        height="346"
+      ></object>
+    </div>
+
+    <script src="roslib.min.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

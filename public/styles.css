@@ -1,0 +1,193 @@
+body,
+h1,
+a,
+button {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #1a1a1a;
+}
+
+.sidebar {
+  width: 180px;
+  background-color: #333;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20px;
+  padding-left: 10px;
+  position: relative;
+}
+
+.logo {
+  width: 160px;
+  height: 160px;
+  cursor: pointer;
+  background-image: url("/assets/sidebar/logo.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  margin-bottom: 20px;
+  animation: rotate 15s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.menu a {
+  width: 100%;
+  padding: 30px;
+  margin: 5px 0;
+  background-color: transparent;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu a:hover {
+  background-color: #555;
+}
+
+.menu img {
+  width: 24px;
+  height: 24px;
+}
+
+.ulsanlogo {
+  width: 200px;
+  height: 100px;
+  cursor: pointer;
+  background-image: url("/assets/sidebar/ulsanlogo.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  margin-top: 20px;
+}
+
+.container {
+  display: flex;
+  flex-grow: 1;
+  padding: 20px;
+  color: white;
+}
+
+.camera-feed {
+  flex: 2;
+  background-color: #000;
+  margin-right: 20px;
+  position: relative;
+}
+
+.camera-feed canvas {
+  width: 640px;
+  height: 480px;
+}
+
+.compass {
+  position: absolute;
+  top: 20px;
+  right: 0%;
+  transform: translateX(-50%);
+  width: 331px;
+  height: 470.59px;
+}
+
+.compass2 {
+  width: 100%;
+  height: 100%;
+  background-image: url("assets/compass/compass2.svg");
+  background-size: cover;
+}
+
+.compass1 {
+  left: 100%;
+  bottom: 175px;
+  position: absolute;
+  width: 292.06px;
+  height: 292.06px;
+  background-image: url("assets/compass/compass1.svg");
+  background-size: cover;
+  transform: translateX(-100%) translateY(12%) rotate(0deg);
+  z-index: 1;
+  transition: transform 0.5s;
+}
+
+.real,
+.disire {
+  font-family: "Ubuntu", sans-serif;
+  font-size: 20pt;
+  position: absolute;
+  z-index: 2;
+}
+
+.real {
+  color: orange;
+  top: 390px;
+  left: 210px;
+}
+
+.disire {
+  color: blue;
+  top: 440px;
+  left: 215px;
+}
+
+.indicators {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: #222;
+  padding: 10px;
+}
+
+.indicator {
+  background-color: #444;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.indicator img {
+  margin-right: 10px;
+}
+
+.gauge-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 362px;
+  height: 346px;
+  z-index: 2; /* Make sure the gauge is on top */
+}
+
+#needle {
+  transform-origin: 181px 160px; /* Adjust to the pivot point of the needle */
+  transition: transform 0.5s ease-out;
+}

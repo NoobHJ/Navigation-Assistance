@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Localization</title>
+    <style>
+      body,
+      h1,
+      a,
+      button {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+      }
+
+      body {
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+        background-color: #1a1a1a;
+      }
+
+      .sidebar {
+        width: 180px;
+        background-color: #333;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 20px;
+        padding-left: 10px;
+        position: relative;
+      }
+
+      .logo {
+        width: 160px;
+        height: 160px;
+        cursor: pointer;
+        background-image: url("/assets/sidebar/logo.svg");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        margin-bottom: 20px;
+        animation: rotate 15s linear infinite;
+      }
+
+      @keyframes rotate {
+        from {
+          transform: rotate(360deg);
+        }
+        to {
+          transform: rotate(0deg);
+        }
+      }
+
+      .menu {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+      }
+
+      .menu a {
+        width: 100%;
+        padding: 30px;
+        margin: 5px 0;
+        background-color: transparent;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .menu a:hover {
+        background-color: #555;
+      }
+
+      .menu img {
+        width: 24px;
+        height: 24px;
+      }
+
+      .ulsanlogo {
+        width: 200px;
+        height: 100px;
+        cursor: pointer;
+        background-image: url("/assets/sidebar/ulsanlogo.svg");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        margin-top: 20px;
+      }
+
+      #map {
+        height: 100%;
+        width: 50%;
+        float: left;
+      }
+      #info {
+        height: 15vh;
+        width: 100%;
+        padding: 10px;
+        background-color: white;
+        text-align: center;
+        font-size: 16px;
+        clear: both;
+      }
+      #csvviewer {
+        font-size: 14px;
+        height: 100vh;
+        width: 100%;
+        float: left;
+        overflow: auto;
+        background-color: white;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key=."></script>
+  </head>
+  <body>
+    <div class="sidebar">
+      <a href="../index.html">
+        <div class="logo"></div>
+      </a>
+      <div class="menu">
+        <a href="./localization.html">
+          <img src="../assets/sidebar/local.svg" alt="icon1" />Localization
+        </a>
+        <a href="./pages/perception.html">
+          <img src="../assets/sidebar/perce.svg" alt="icon2" />Perception
+        </a>
+        <a href="./pages/decision.html">
+          <img src="../assets/sidebar/decis.svg" alt="icon3" />Decision
+        </a>
+        <a href="./pages/control.html">
+          <img src="../assets/sidebar/contr.svg" alt="icon4" />Control
+        </a>
+      </div>
+      <a href="../index.html">
+        <div class="ulsanlogo"></div>
+      </a>
+    </div>
+
+    <div id="info">
+      <div id="kst_time">KST Time: N/A</div>
+      <div id="pDOP">pDOP: N/A</div>
+      <div id="numSV">numSV: N/A</div>
+      <div id="csvviewer">
+        <table id="csvtable">
+          <thead>
+            <tr id="csvheader"></tr>
+          </thead>
+          <tbody id="csvbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div id="map"></div>
+    <script>
+      let map;
+      let previousLocation = null;
+      const locations = [];
+      const markers = [];
+      const path = new google.maps.Polyline({
+        geodesic: true,
+        strokeColor: "#FF0000",
+        strokeOpacity: 1.0,
+        strokeWeight: 2,
+      });
+
+      function initMap() {
+        map = new google.maps.Map(document.getElementById("map"), {
+          center: { lat: 37.5665, lng: 126.978 }, // Center on Seoul by default
+          zoom: 13,
+          mapTypeId: "satellite",
+        });
+        path.setMap(map);
+        updateMap();
+        setInterval(updateMap, 1000); // Update the map every 1 second
+        updateCSVViewer();
+        setInterval(updateCSVViewer, 1000); // Update the CSV viewer every 1 second
+      }
+
+      async function fetchGPSData() {
+        try {
+          const response = await fetch("/ublox_c099_f9p/navpvt");
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          console.error("Error fetching GPS data:", error);
+          return null;
+        }
+      }
+
+      async function updateMap() {
+        const data = await fetchGPSData();
+        if (data && data.lat && data.lon) {
+          const lat = data.lat / 10000000; // Assuming lat and lon are in microdegrees
+          const lon = data.lon / 10000000;
+          const newLocation = new google.maps.LatLng(lat, lon);
+
+          // Add new marker and update path
+          const marker = new google.maps.Marker({
+            position: newLocation,
+            map: map,
+            title: `Latitude: ${lat}, Longitude: ${lon}, pDOP: ${data.pDOP}, numSV: ${data.numSV}, KST Time: ${data.kst_time}`,
+          });
+          markers.push(marker);
+
+          if (previousLocation) {
+            locations.push(previousLocation);
+            locations.push(newLocation);
+          }
+
+          // Update the map center and path
+          map.setCenter(newLocation);
+          path.setPath(locations);
+          previousLocation = newLocation;
+
+          // Update info div
+          document.getElementById(
+            "kst_time"
+          ).innerText = `KST Time: ${data.kst_time}`;
+          document.getElementById("pDOP").innerText = `pDOP: ${data.pDOP}`;
+          document.getElementById("numSV").innerText = `numSV: ${data.numSV}`;
+        }
+      }
+
+      async function fetchCSVData() {
+        try {
+          const response = await fetch("../db/gps_data.csv");
+          const text = await response.text();
+          return text;
+        } catch (error) {
+          console.error("Error fetching CSV data:", error);
+          return null;
+        }
+      }
+
+      function parseCSV(text) {
+        const lines = text.split("\n");
+        const headers = lines[0].split(",");
+        const rows = lines.slice(1).map((line) => line.split(","));
+        return { headers, rows };
+      }
+
+      async function updateCSVViewer() {
+        const csvText = await fetchCSVData();
+        if (csvText) {
+          const { headers, rows } = parseCSV(csvText);
+          const csvHeader = document.getElementById("csvheader");
+          const csvBody = document.getElementById("csvbody");
+
+          // Clear existing content
+          csvHeader.innerHTML = "";
+          csvBody.innerHTML = "";
+
+          // Update headers
+          headers.forEach((header) => {
+            const th = document.createElement("th");
+            th.textContent = header;
+            csvHeader.appendChild(th);
+          });
+
+          // Update rows
+          rows.forEach((row) => {
+            const tr = document.createElement("tr");
+            row.forEach((cell) => {
+              const td = document.createElement("td");
+              td.textContent = cell;
+              tr.appendChild(td);
+            });
+            csvBody.appendChild(tr);
+          });
+        }
+      }
+
+      window.onload = initMap;
+    </script>
+  </body>
+</html>
