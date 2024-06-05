@@ -184,7 +184,7 @@ body {
   transform: translate(-50%, -50%);
   width: 362px;
   height: 346px;
-  z-index: 2; /* Make sure the gauge is on top */
+  z-index: 1;
 }
 
 #needle {

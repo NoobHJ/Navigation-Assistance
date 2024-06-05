@@ -1,14 +1,23 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const gaugeObject = document.querySelector(".gauge-container object");
+  const gaugeObject = document.getElementById("gauge-svg");
 
   gaugeObject.addEventListener("load", () => {
     const needle = gaugeObject.contentDocument.getElementById("needle");
 
-    function setNeedleRotation(speed) {
-      const degrees = speed * 30;
-      needle.style.transform = `rotate(${degrees}deg)`;
+    if (needle) {
+      console.log("Needle element found:", needle);
+
+      function setNeedleRotation(degrees) {
+        needle.style.transform = `rotate(${degrees}deg)`;
+      }
+
+      // Example usage: rotate needle to 45 degrees
+      setNeedleRotation(45);
+
+      // Add event listener or other logic to update needle rotation
+    } else {
+      console.error("Needle element not found in the SVG.");
     }
-    setNeedleRotation(45);
   });
 });
 

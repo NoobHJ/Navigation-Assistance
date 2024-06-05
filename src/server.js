@@ -1,7 +1,7 @@
 const express = require("express");
 const http = require("http");
 const path = require("path");
-const crypto = require("crypto"); // Node.js의 crypto 모듈 사용
+const crypto = require("crypto");
 const app = express();
 const server = http.createServer(app);
 
