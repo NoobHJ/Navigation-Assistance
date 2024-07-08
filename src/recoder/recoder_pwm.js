@@ -16,7 +16,9 @@ const csvWriter = createCsvWriter({
   append: true,
 });
 
-function initializeUTMTopic(ros) {
+function initializePWMTopic(ros) {
+  console.log("Initializing PWM topic...");
+
   const pwmDataListener = new ROSLIB.Topic({
     ros: ros,
     name: "/thrust",
@@ -38,7 +40,6 @@ function recordToCSV(data) {
 
   const kstTime = moment().tz("Asia/Seoul").format("YYYY-MM-DD HH:mm:ss");
 
-  // Example data format: "PWM1: 1502, PWM2: 1502, PWM3: 1500"
   const pwmValues = data.match(
     /PWM1:\s*(\d+),\s*PWM2:\s*(\d+),\s*PWM3:\s*(\d+)/
   );
@@ -62,6 +63,6 @@ function recordToCSV(data) {
 }
 
 module.exports = {
-  initializeUTMTopic,
-  getpwmData: () => pwmData,
+  initializePWMTopic,
+  getPWMData: () => pwmData,
 };

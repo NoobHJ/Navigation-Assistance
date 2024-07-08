@@ -114,11 +114,11 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        margin-left: 20px;
+        margin-left: 50px;
       }
       .line-chart {
-        width: 400px;
-        height: 200px;
+        width: 1500px;
+        height: 1200px;
       }
     </style>
   </head>
@@ -153,18 +153,24 @@
       <div class="bar" id="centerBar">
         <div class="bar-fill" id="centerBar-fill2"></div>
       </div>
-      <div class="label" id="label2">1650</div>
+      <div class="label" id="label2">1500</div>
       <div class="bar" id="starboardBar">
         <div class="bar-fill" id="starboardBar-fill3"></div>
       </div>
-      <div class="label" id="label3">1900</div>
+      <div class="label" id="label3">1500</div>
     </div>
     <div class="chart-container">
       <canvas id="line-chart" class="line-chart"></canvas>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="./chart.umd.js"></script>
+    <script src="./chartjs-adapter-date-fns.bundle.js"></script>
     <script>
       function setPWM(barId, fillId, labelId, pwm) {
+        if (typeof pwm === "undefined") {
+          console.error(`PWM value for ${labelId} is undefined`);
+          return;
+        }
+
         const minPWM = 1500;
         const maxPWM = 1900;
         const percentage = (pwm - minPWM) / (maxPWM - minPWM);
@@ -174,6 +180,9 @@
         const label = document.getElementById(labelId);
         fill.style.height = `${barHeight}px`;
         label.textContent = pwm;
+        console.log(
+          `Updated ${labelId}: PWM = ${pwm}, height = ${barHeight}px`
+        );
       }
 
       const lineChartData = {
@@ -201,17 +210,50 @@
       };
 
       function updateLineChart(chart, time, pwm1, pwm2, pwm3) {
+        if (
+          typeof pwm1 === "undefined" ||
+          typeof pwm2 === "undefined" ||
+          typeof pwm3 === "undefined"
+        ) {
+          console.error("One or more PWM values are undefined");
+          return;
+        }
+
         chart.data.labels.push(time);
         chart.data.datasets[0].data.push(pwm1);
         chart.data.datasets[1].data.push(pwm2);
         chart.data.datasets[2].data.push(pwm3);
         chart.update();
+        console.log(
+          `Updated chart: ${time} PWM1 = ${pwm1}, PWM2 = ${pwm2}, PWM3 = ${pwm3}`
+        );
       }
 
       async function fetchPWMData() {
-        const response = await fetch("/thrust");
-        const pwmData = await response.json();
-        return pwmData;
+        try {
+          const response = await fetch("/thrust");
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          const pwmData = await response.text(); // 데이터를 텍스트로 읽어옴
+          console.log("Fetched PWM data:", pwmData);
+
+          // PWM 데이터를 추출하여 객체로 반환
+          const pwmRegex = /PWM1: (\d+), PWM2: (\d+), PWM3: (\d+)/;
+          const match = pwmData.match(pwmRegex);
+          if (!match) {
+            throw new Error("PWM data format is invalid");
+          }
+
+          const PWM1 = parseInt(match[1]);
+          const PWM2 = parseInt(match[2]);
+          const PWM3 = parseInt(match[3]);
+
+          return { PWM1, PWM2, PWM3 };
+        } catch (error) {
+          console.error("Error fetching PWM data:", error);
+          return null; // 실패를 나타내기 위해 null 반환
+        }
       }
 
       document.addEventListener("DOMContentLoaded", async () => {
@@ -240,33 +282,34 @@
         function updateCharts() {
           fetchPWMData()
             .then((pwmData) => {
+              if (!pwmData) {
+                console.error("No PWM data received");
+                return;
+              }
+              // Ensure PWM values exist
+              const { PWM1, PWM2, PWM3 } = pwmData;
+              if (
+                typeof PWM1 === "undefined" ||
+                typeof PWM2 === "undefined" ||
+                typeof PWM3 === "undefined"
+              ) {
+                console.error(
+                  "One or more PWM values are missing in the fetched data"
+                );
+                return;
+              }
+
               // Update bar charts
-              setPWM(
-                "portsideBar",
-                "portsideBar-fill1",
-                "label1",
-                pwmData.pwm1
-              );
-              setPWM("centerBar", "centerBar-fill2", "label2", pwmData.pwm2);
-              setPWM(
-                "starboardBar",
-                "starboardBar-fill3",
-                "label3",
-                pwmData.pwm3
-              );
+              setPWM("portsideBar", "portsideBar-fill1", "label1", PWM1);
+              setPWM("centerBar", "centerBar-fill2", "label2", PWM2);
+              setPWM("starboardBar", "starboardBar-fill3", "label3", PWM3);
 
               // Update line chart
               let time = new Date(); // Assuming time stamp when data is fetched
-              updateLineChart(
-                lineChart,
-                time,
-                pwmData.pwm1,
-                pwmData.pwm2,
-                pwmData.pwm3
-              );
+              updateLineChart(lineChart, time, PWM1, PWM2, PWM3);
             })
             .catch((error) => {
-              console.error("Error fetching PWM data:", error);
+              console.error("Error updating charts:", error);
             });
         }
 
@@ -274,14 +317,8 @@
         updateCharts();
 
         // Update charts every 5 seconds (adjust interval as needed)
-        setInterval(updateCharts, 5000);
+        setInterval(updateCharts, 1000);
       });
-
-      async function fetchPWMData() {
-        const response = await fetch("/thrust"); // Assuming '/thrust' endpoint returns PWM data
-        const pwmData = await response.json();
-        return pwmData;
-      }
     </script>
   </body>
 </html>
