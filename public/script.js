@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
 async function loadSidebar() {
   try {
     const ros = new ROSLIB.Ros({
-      url: "ws://192.168.10.126:9090",
+      url: "ws://localhost:9090",
     });
 
     const canvas = document.getElementById("ros-canvas");
@@ -81,7 +81,7 @@ async function fetchHeading() {
     if (data && data.heading !== undefined) {
       const realDeg = data.heading;
       compass1.style.transform = `translateX(-100%) translateY(12%) rotate(${realDeg}deg)`;
-      realHeading.textContent = `${realDeg}도`;
+      realHeading.textContent = `${realDeg}deg`;
     }
   } catch (error) {
     console.error("Error fetching UTM data:", error);

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>perception</title>
+    <style>
+      body,
+      h1,
+      a,
+      button {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+      }
+
+      body {
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+        background-color: #1a1a1a;
+      }
+
+      .sidebar {
+        width: 180px;
+        background-color: #333;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 20px;
+        padding-left: 10px;
+        position: relative;
+      }
+
+      .logo {
+        width: 160px;
+        height: 160px;
+        cursor: pointer;
+        background-image: url("/assets/sidebar/logo.svg");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        margin-bottom: 20px;
+        animation: rotate 15s linear infinite;
+      }
+
+      @keyframes rotate {
+        from {
+          transform: rotate(360deg);
+        }
+        to {
+          transform: rotate(0deg);
+        }
+      }
+
+      .menu {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+      }
+
+      .menu a {
+        width: 100%;
+        padding: 30px;
+        margin: 5px 0;
+        background-color: transparent;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .menu a:hover {
+        background-color: #555;
+      }
+
+      .menu img {
+        width: 24px;
+        height: 24px;
+      }
+
+      .ulsanlogo {
+        width: 200px;
+        height: 100px;
+        cursor: pointer;
+        background-image: url("/assets/sidebar/ulsanlogo.svg");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sidebar">
+      <a href="../index.html">
+        <div class="logo"></div>
+      </a>
+      <div class="menu">
+        <a href="./localization.html">
+          <img src="../assets/sidebar/local.svg" alt="icon1" />Localization
+        </a>
+        <a href="./perception.html">
+          <img src="../assets/sidebar/perce.svg" alt="icon2" />Perception
+        </a>
+        <a href="./decision.html">
+          <img src="../assets/sidebar/decis.svg" alt="icon3" />Decision
+        </a>
+        <a href="./control.html">
+          <img src="../assets/sidebar/contr.svg" alt="icon4" />Control
+        </a>
+      </div>
+      <a href="../index.html">
+        <div class="ulsanlogo"></div>
+      </a>
+    </div>
+
+    <script></script>
+  </body>
+</html>

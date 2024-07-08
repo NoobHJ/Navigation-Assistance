@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Control</title>
+    <style>
+      body,
+      h1,
+      a,
+      button {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+      }
+      body {
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+        background-color: #1a1a1a;
+      }
+      .sidebar {
+        width: 180px;
+        background-color: #333;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 20px;
+        padding-left: 10px;
+        position: relative;
+      }
+      .logo {
+        width: 160px;
+        height: 160px;
+        cursor: pointer;
+        background-image: url("/assets/sidebar/logo.svg");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        margin-bottom: 20px;
+        animation: rotate 15s linear infinite;
+      }
+      @keyframes rotate {
+        from {
+          transform: rotate(360deg);
+        }
+        to {
+          transform: rotate(0deg);
+        }
+      }
+      .menu {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+      }
+      .menu a {
+        width: 100%;
+        padding: 30px;
+        margin: 5px 0;
+        background-color: transparent;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .menu a:hover {
+        background-color: #555;
+      }
+      .menu img {
+        width: 24px;
+        height: 24px;
+      }
+      .ulsanlogo {
+        width: 200px;
+        height: 100px;
+        cursor: pointer;
+        background-image: url("/assets/sidebar/ulsanlogo.svg");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        margin-top: 20px;
+      }
+      .bar-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin-left: 20px;
+      }
+      .bar {
+        position: relative;
+        width: 50px;
+        height: 200px;
+        background-color: #ccc;
+        border: 1px solid #999;
+      }
+      .bar-fill {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background-color: green;
+        transition: height 1s;
+      }
+      .label {
+        text-align: center;
+        margin-top: 5px;
+        color: white;
+      }
+      .chart-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-left: 20px;
+      }
+      .line-chart {
+        width: 400px;
+        height: 200px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sidebar">
+      <a href="../index.html">
+        <div class="logo"></div>
+      </a>
+      <div class="menu">
+        <a href="./localization.html">
+          <img src="../assets/sidebar/local.svg" alt="icon1" />Localization
+        </a>
+        <a href="./perception.html">
+          <img src="../assets/sidebar/perce.svg" alt="icon2" />Perception
+        </a>
+        <a href="./decision.html">
+          <img src="../assets/sidebar/decis.svg" alt="icon3" />Decision
+        </a>
+        <a href="./control.html">
+          <img src="../assets/sidebar/contr.svg" alt="icon4" />Control
+        </a>
+      </div>
+      <a href="../index.html">
+        <div class="ulsanlogo"></div>
+      </a>
+    </div>
+    <div class="bar-container">
+      <div class="bar" id="portsideBar">
+        <div class="bar-fill" id="portsideBar-fill1"></div>
+      </div>
+      <div class="label" id="label1">1500</div>
+      <div class="bar" id="centerBar">
+        <div class="bar-fill" id="centerBar-fill2"></div>
+      </div>
+      <div class="label" id="label2">1650</div>
+      <div class="bar" id="starboardBar">
+        <div class="bar-fill" id="starboardBar-fill3"></div>
+      </div>
+      <div class="label" id="label3">1900</div>
+    </div>
+    <div class="chart-container">
+      <canvas id="line-chart" class="line-chart"></canvas>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      function setPWM(barId, fillId, labelId, pwm) {
+        const minPWM = 1500;
+        const maxPWM = 1900;
+        const percentage = (pwm - minPWM) / (maxPWM - minPWM);
+        const barHeight = 200 * percentage; // 200px is the full height of the bar
+
+        const fill = document.getElementById(fillId);
+        const label = document.getElementById(labelId);
+        fill.style.height = `${barHeight}px`;
+        label.textContent = pwm;
+      }
+
+      const lineChartData = {
+        labels: [],
+        datasets: [
+          {
+            label: "PWM1",
+            data: [],
+            borderColor: "red",
+            fill: false,
+          },
+          {
+            label: "PWM2",
+            data: [],
+            borderColor: "green",
+            fill: false,
+          },
+          {
+            label: "PWM3",
+            data: [],
+            borderColor: "blue",
+            fill: false,
+          },
+        ],
+      };
+
+      function updateLineChart(chart, time, pwm1, pwm2, pwm3) {
+        chart.data.labels.push(time);
+        chart.data.datasets[0].data.push(pwm1);
+        chart.data.datasets[1].data.push(pwm2);
+        chart.data.datasets[2].data.push(pwm3);
+        chart.update();
+      }
+
+      async function fetchPWMData() {
+        const response = await fetch("/thrust");
+        const pwmData = await response.json();
+        return pwmData;
+      }
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        const lineChartCtx = document
+          .getElementById("line-chart")
+          .getContext("2d");
+        const lineChart = new Chart(lineChartCtx, {
+          type: "line",
+          data: lineChartData,
+          options: {
+            scales: {
+              x: {
+                type: "time",
+                time: {
+                  unit: "minute",
+                },
+              },
+              y: {
+                beginAtZero: true,
+                max: 1900,
+              },
+            },
+          },
+        });
+
+        function updateCharts() {
+          fetchPWMData()
+            .then((pwmData) => {
+              // Update bar charts
+              setPWM(
+                "portsideBar",
+                "portsideBar-fill1",
+                "label1",
+                pwmData.pwm1
+              );
+              setPWM("centerBar", "centerBar-fill2", "label2", pwmData.pwm2);
+              setPWM(
+                "starboardBar",
+                "starboardBar-fill3",
+                "label3",
+                pwmData.pwm3
+              );
+
+              // Update line chart
+              let time = new Date(); // Assuming time stamp when data is fetched
+              updateLineChart(
+                lineChart,
+                time,
+                pwmData.pwm1,
+                pwmData.pwm2,
+                pwmData.pwm3
+              );
+            })
+            .catch((error) => {
+              console.error("Error fetching PWM data:", error);
+            });
+        }
+
+        // Initial fetch and update
+        updateCharts();
+
+        // Update charts every 5 seconds (adjust interval as needed)
+        setInterval(updateCharts, 5000);
+      });
+
+      async function fetchPWMData() {
+        const response = await fetch("/thrust"); // Assuming '/thrust' endpoint returns PWM data
+        const pwmData = await response.json();
+        return pwmData;
+      }
+    </script>
+  </body>
+</html>
