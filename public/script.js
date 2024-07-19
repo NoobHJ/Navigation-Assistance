@@ -90,3 +90,70 @@ async function fetchHeading() {
 
 fetchHeading();
 setInterval(fetchHeading, 1000);
+
+document.addEventListener("DOMContentLoaded", async () => {
+  function setPWM(barId, fillId, labelId, pwm) {
+    if (typeof pwm === "undefined") {
+      console.error(`PWM value for ${labelId} is undefined`);
+      return;
+    }
+
+    const minPWM = 1100;
+    const maxPWM = 1900;
+    const percentage = (pwm - minPWM) / (maxPWM - minPWM);
+    const barHeight = 100 * percentage; // 100px is the full height of the bar for smaller version
+
+    const fill = document.getElementById(fillId);
+    const label = document.getElementById(labelId);
+    fill.style.height = `${barHeight}px`;
+    label.textContent = pwm;
+    console.log(`Updated ${labelId}: PWM = ${pwm}, height = ${barHeight}px`);
+  }
+
+  async function fetchPWMData() {
+    try {
+      const response = await fetch("/thrust");
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const pwmData = await response.text();
+      console.log("Fetched PWM data:", pwmData);
+
+      const pwmRegex = /PWM1: (\d+), PWM2: (\d+), PWM3: (\d+)/;
+      const match = pwmData.match(pwmRegex);
+      if (!match) {
+        throw new Error("PWM data format is invalid");
+      }
+
+      const PWM1 = parseInt(match[1]);
+      const PWM2 = parseInt(match[2]);
+      const PWM3 = parseInt(match[3]);
+
+      return { PWM1, PWM2, PWM3 };
+    } catch (error) {
+      console.error("Error fetching PWM data:", error);
+      return null;
+    }
+  }
+
+  function updateGauges() {
+    fetchPWMData()
+      .then((pwmData) => {
+        if (!pwmData) {
+          console.error("No PWM data received");
+          return;
+        }
+        const { PWM1, PWM2, PWM3 } = pwmData;
+
+        setPWM("portsideBar", "portsideBar-fill", "label1", PWM1);
+        setPWM("centerBar", "centerBar-fill", "label2", PWM2);
+        setPWM("starboardBar", "starboardBar-fill", "label3", PWM3);
+      })
+      .catch((error) => {
+        console.error("Error updating gauges:", error);
+      });
+  }
+
+  updateGauges();
+  setInterval(updateGauges, 1000); // Update every second
+});

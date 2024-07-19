@@ -108,9 +108,10 @@ body {
 }
 
 .compass {
+  flex: 1;
   position: absolute;
-  top: 20px;
-  right: 0%;
+  top: 0px;
+  right: 7%;
   transform: translateX(-50%);
   width: 331px;
   height: 470.59px;
@@ -138,7 +139,6 @@ body {
 
 .real,
 .disire {
-  font-family: "Ubuntu", sans-serif;
   font-size: 20pt;
   position: absolute;
   z-index: 2;
@@ -197,18 +197,46 @@ body {
   height: 300px;
   margin-right: 10px;
 }
-.gauge-container {
+
+.rviz-container {
   flex: 1;
-  background-color: #70c219;
+  background-color: #485476;
   padding: 10px;
   width: 300px;
   height: 300px;
 }
 
-.rviz-container {
-  flex: 1;
-  background-color: #dfcc22;
-  padding: 10px;
-  width: 300px;
-  height: 300px;
+.gauge-container {
+  display: flex;
+  gap: 50px; /* Adjust the gap between gauges as needed */
+  justify-content: left; /* Center the gauges horizontally */
+}
+
+.pwm-gauge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 10%;
+}
+
+.bar {
+  position: relative;
+  width: 30px; /* Smaller width for smaller version */
+  height: 100px; /* Smaller height for smaller version */
+  background-color: #ccc;
+  border: 1px solid #999;
+}
+
+.bar-fill {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color: green;
+  transition: height 1s;
+}
+
+.label {
+  text-align: center;
+  margin-top: 5px;
+  color: green;
 }

@@ -31,19 +31,38 @@
         <canvas id="ros-canvas"></canvas>
         <div class="parent-container">
           <div class="connected-container">
-            FRONT CAMERA : CONNECTED <br>
-            IMU : CONNECTED <br>
-            NTRIP : CONNECTED <br>
-            NTRIP DATA IS RECEIVING... <br>
-            GPS : CONNECTED <br>
-            GPS FIXTYPE : 4 <br>
-            GPS PDOP : 187 <br>
+            FRONT CAMERA : CONNECTED <br />
+            IMU : CONNECTED <br />
+            NTRIP : CONNECTED <br />
+            NTRIP DATA IS RECEIVING... <br />
+            GPS : CONNECTED <br />
+            GPS FIXTYPE : 4 <br />
+            GPS PDOP : 187 <br />
             LIDAR : CONNECTED
           </div>
-          <div class="gauge-container"></div>
+          <div class="gauge-container">
+            <div class="pwm-gauge">
+              <div class="bar" id="portsideBar">
+                <div class="bar-fill" id="portsideBar-fill"></div>
+              </div>
+              <div class="label" id="label1">1500</div>
+            </div>
+            <div class="pwm-gauge">
+              <div class="bar" id="centerBar">
+                <div class="bar-fill" id="centerBar-fill"></div>
+              </div>
+              <div class="label" id="label2">1500</div>
+            </div>
+            <div class="pwm-gauge">
+              <div class="bar" id="starboardBar">
+                <div class="bar-fill" id="starboardBar-fill"></div>
+              </div>
+              <div class="label" id="label3">1500</div>
+            </div>
+          </div>
           <div class="rviz-container"></div>
+        </div>
       </div>
-
       <div class="compass">
         <div class="compass2"></div>
         <div class="compass1"></div>
