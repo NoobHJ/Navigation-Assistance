@@ -117,8 +117,8 @@
         margin-left: 50px;
       }
       .line-chart {
-        width: 1500px;
-        height: 1200px;
+        width: 500px;
+        height: 200px;
       }
     </style>
   </head>
@@ -160,10 +160,13 @@
       <div class="label" id="label3">1500</div>
     </div>
     <div class="chart-container">
-      <canvas id="line-chart" class="line-chart"></canvas>
+      <canvas id="line-chart1" class="line-chart"></canvas>
+      <canvas id="line-chart2" class="line-chart"></canvas>
+      <canvas id="line-chart3" class="line-chart"></canvas>
     </div>
-    <script src="./chart.umd.js"></script>
-    <script src="./chartjs-adapter-date-fns.bundle.js"></script>
+
+    <script src="../lib/chart.umd.js"></script>
+    <script src="../lib/chartjs-adapter-date-fns.bundle.js"></script>
     <script>
       function setPWM(barId, fillId, labelId, pwm) {
         if (typeof pwm === "undefined") {
@@ -255,14 +258,19 @@
           return null; // 실패를 나타내기 위해 null 반환
         }
       }
-
       document.addEventListener("DOMContentLoaded", async () => {
-        const lineChartCtx = document
-          .getElementById("line-chart")
+        const lineChartCtx1 = document
+          .getElementById("line-chart1")
           .getContext("2d");
-        const lineChart = new Chart(lineChartCtx, {
+        const lineChartCtx2 = document
+          .getElementById("line-chart2")
+          .getContext("2d");
+        const lineChartCtx3 = document
+          .getElementById("line-chart3")
+          .getContext("2d");
+
+        const commonChartOptions = {
           type: "line",
-          data: lineChartData,
           options: {
             scales: {
               x: {
@@ -272,12 +280,89 @@
                 },
               },
               y: {
-                beginAtZero: true,
+                min: 1100,
                 max: 1900,
               },
             },
           },
+        };
+
+        const lineChart1 = new Chart(lineChartCtx1, {
+          ...commonChartOptions,
+          data: {
+            labels: [],
+            datasets: [
+              {
+                label: "PWM1",
+                data: [],
+                borderColor: "red",
+                fill: false,
+              },
+            ],
+          },
         });
+
+        const lineChart2 = new Chart(lineChartCtx2, {
+          ...commonChartOptions,
+          data: {
+            labels: [],
+            datasets: [
+              {
+                label: "PWM2",
+                data: [],
+                borderColor: "green",
+                fill: false,
+              },
+            ],
+          },
+        });
+
+        const lineChart3 = new Chart(lineChartCtx3, {
+          ...commonChartOptions,
+          data: {
+            labels: [],
+            datasets: [
+              {
+                label: "PWM3",
+                data: [],
+                borderColor: "blue",
+                fill: false,
+              },
+            ],
+          },
+        });
+
+        function updateLineChart(chart, time, pwm) {
+          chart.data.labels.push(time);
+          chart.data.datasets[0].data.push(pwm);
+          chart.update();
+        }
+
+        async function fetchPWMData() {
+          try {
+            const response = await fetch("/thrust");
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            const pwmData = await response.text();
+            console.log("Fetched PWM data:", pwmData);
+
+            const pwmRegex = /PWM1: (\d+), PWM2: (\d+), PWM3: (\d+)/;
+            const match = pwmData.match(pwmRegex);
+            if (!match) {
+              throw new Error("PWM data format is invalid");
+            }
+
+            const PWM1 = parseInt(match[1]);
+            const PWM2 = parseInt(match[2]);
+            const PWM3 = parseInt(match[3]);
+
+            return { PWM1, PWM2, PWM3 };
+          } catch (error) {
+            console.error("Error fetching PWM data:", error);
+            return null;
+          }
+        }
 
         function updateCharts() {
           fetchPWMData()
@@ -286,37 +371,24 @@
                 console.error("No PWM data received");
                 return;
               }
-              // Ensure PWM values exist
               const { PWM1, PWM2, PWM3 } = pwmData;
-              if (
-                typeof PWM1 === "undefined" ||
-                typeof PWM2 === "undefined" ||
-                typeof PWM3 === "undefined"
-              ) {
-                console.error(
-                  "One or more PWM values are missing in the fetched data"
-                );
-                return;
-              }
 
-              // Update bar charts
+              let time = new Date();
+
               setPWM("portsideBar", "portsideBar-fill1", "label1", PWM1);
               setPWM("centerBar", "centerBar-fill2", "label2", PWM2);
               setPWM("starboardBar", "starboardBar-fill3", "label3", PWM3);
 
-              // Update line chart
-              let time = new Date(); // Assuming time stamp when data is fetched
-              updateLineChart(lineChart, time, PWM1, PWM2, PWM3);
+              updateLineChart(lineChart1, time, PWM1);
+              updateLineChart(lineChart2, time, PWM2);
+              updateLineChart(lineChart3, time, PWM3);
             })
             .catch((error) => {
               console.error("Error updating charts:", error);
             });
         }
 
-        // Initial fetch and update
         updateCharts();
-
-        // Update charts every 5 seconds (adjust interval as needed)
         setInterval(updateCharts, 1000);
       });
     </script>

@@ -191,3 +191,13 @@ body {
   transform-origin: 181px 160px; /* Adjust to the pivot point of the needle */
   transition: transform 0.5s ease-out;
 }
+
+.connected-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: #222;
+  padding: 10px;
+  font-size: 10pt;
+}
