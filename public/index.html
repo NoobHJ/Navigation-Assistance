@@ -29,32 +29,27 @@
     <div class="container">
       <div class="camera-feed">
         <canvas id="ros-canvas"></canvas>
-        <div class="compass">
-          <div class="compass2"></div>
-          <div class="compass1"></div>
-          <h1 class="real">0°</h1>
-          <h1 class="disire">359°</h1>
-        </div>
+        <div class="parent-container">
+          <div class="connected-container">
+            FRONT CAMERA : CONNECTED <br>
+            IMU : CONNECTED <br>
+            NTRIP : CONNECTED <br>
+            NTRIP DATA IS RECEIVING... <br>
+            GPS : CONNECTED <br>
+            GPS FIXTYPE : 4 <br>
+            GPS PDOP : 187 <br>
+            LIDAR : CONNECTED
+          </div>
+          <div class="gauge-container"></div>
+          <div class="rviz-container"></div>
       </div>
-      <div class="connected-container">
-        FRONT CAMERA : CONNECTED <br />
-        IMU : CONNECTED <br />
-        NTRIP : CONNECTED <br />
-        NTRIP DATA IS RECEIVING... <br />
-        GPS : CONNECTED <br />
-        GPS FIXTYPE : 4 <br />
-        GPS PDOP : 117 <br />
-        LIDAR :CONNECTED
-      </div>
-    </div>
 
-    <div class="gauge-container">
-      <object
-        type="image/svg+xml"
-        data="public/assets/Gauge.svg"
-        width="362"
-        height="346"
-      ></object>
+      <div class="compass">
+        <div class="compass2"></div>
+        <div class="compass1"></div>
+        <h1 class="real">0°</h1>
+        <h1 class="disire">359°</h1>
+      </div>
     </div>
 
     <script src="./lib/roslib.min.js"></script>
